@@ -1,13 +1,34 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Filter, Star, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Filter, Star, Search, SlidersHorizontal, ChevronDown, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { useCartStore } from '../store';
 
 const CourseCatalog = () => {
   const [filterOpen, setFilterOpen] = useState(false);
+  const { addItem } = useCartStore();
+  const navigate = useNavigate();
+
+  const mockCourses = [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({
+    id: i.toString(),
+    title: i % 2 === 0 ? 'Advanced React Architecture with Next.js' : 'The UI/UX Design Fundamentals for 2024',
+    instructor: 'John Doe, Senior Lead',
+    price: 14.99,
+    rating: 4.8,
+    reviews: '2.1k',
+    thumbnail: `https://picsum.photos/seed/learn${i}/600/400`,
+    level: 'Intermediate'
+  }));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+      <button 
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold mb-6 group transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back
+      </button>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
           <h1 className="text-4xl font-black mb-2">Explore Courses</h1>
@@ -37,7 +58,7 @@ const CourseCatalog = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xl mb-12 grid grid-cols-2 md:grid-cols-4 gap-6 animate-in slide-in-from-top-4">
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">Level</label>
-            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none">
+            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm">
               <option>All Levels</option>
               <option>Beginner</option>
               <option>Intermediate</option>
@@ -46,7 +67,7 @@ const CourseCatalog = () => {
           </div>
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">Price</label>
-            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none">
+            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm">
               <option>Any Price</option>
               <option>Free</option>
               <option>Paid</option>
@@ -54,7 +75,7 @@ const CourseCatalog = () => {
           </div>
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">Rating</label>
-            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none">
+            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm">
               <option>4.5 & up</option>
               <option>4.0 & up</option>
               <option>3.5 & up</option>
@@ -62,7 +83,7 @@ const CourseCatalog = () => {
           </div>
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">Sort By</label>
-            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none">
+            <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm">
               <option>Newest</option>
               <option>Most Popular</option>
               <option>Highest Rated</option>
@@ -72,33 +93,43 @@ const CourseCatalog = () => {
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-          <Link to={`/course/${i}`} key={i} className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 hover:shadow-xl transition-all hover:border-blue-300">
-            <div className="aspect-video bg-slate-100 rounded-t-2xl overflow-hidden relative">
-              <img src={`https://picsum.photos/seed/learn${i}/600/400`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+        {mockCourses.map(course => (
+          <div key={course.id} className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 hover:shadow-xl transition-all hover:border-blue-300">
+            <Link to={`/course/${course.id}`} className="aspect-video bg-slate-100 rounded-t-2xl overflow-hidden relative">
+              <img src={course.thumbnail} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 <Filter className="w-4 h-4 text-blue-600" />
               </div>
-            </div>
+            </Link>
             <div className="p-5 flex flex-col flex-1">
               <div className="flex items-center gap-1 text-yellow-500 text-xs font-bold mb-2">
                 <Star className="w-3 h-3 fill-current" />
-                <span>4.8</span>
-                <span className="text-slate-400 font-normal ml-1">(2.1k)</span>
+                <span>{course.rating}</span>
+                <span className="text-slate-400 font-normal ml-1">({course.reviews})</span>
               </div>
-              <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
-                {i % 2 === 0 ? 'Advanced React Architecture with Next.js' : 'The UI/UX Design Fundamentals for 2024'}
-              </h3>
-              <p className="text-xs text-slate-500 mb-4">John Doe, Senior Lead</p>
+              <Link to={`/course/${course.id}`}>
+                <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                  {course.title}
+                </h3>
+              </Link>
+              <p className="text-xs text-slate-500 mb-4">{course.instructor}</p>
               <div className="mt-auto flex items-center justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-black">$14.99</span>
-                  <span className="text-xs text-slate-400 line-through">$49.99</span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-black text-slate-900">${course.price}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-tighter text-slate-400">{course.level}</span>
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-tighter px-2 py-1 bg-slate-100 rounded text-slate-600">Intermediate</div>
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addItem(course);
+                  }}
+                  className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all group/btn"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 

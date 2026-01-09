@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { UserRole } from '../types';
-import { Shield, User, Mail, Lock, Eye, EyeOff, Heart, ArrowRight } from 'lucide-react';
+import { Shield, User, Mail, Lock, Eye, EyeOff, ArrowRight, Heart } from 'lucide-react';
 
 const Logo = () => (
   <div className="flex items-center gap-1.5 select-none justify-center mb-6">
@@ -16,7 +16,8 @@ const Logo = () => (
   </div>
 );
 
-const Login = () => {
+const Signup = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.STUDENT);
@@ -24,12 +25,12 @@ const Login = () => {
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock successful login
+    // Mock registration logic
     login({
-      id: '1',
-      name: email.split('@')[0],
+      id: Math.random().toString(36).substr(2, 9),
+      name: name || email.split('@')[0],
       email,
       role
     });
@@ -38,15 +39,40 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl shadow-indigo-100 border border-slate-200 overflow-hidden">
-        <div className="p-8 sm:p-12">
+      <div className="max-w-xl w-full grid md:grid-cols-5 bg-white rounded-[40px] shadow-2xl shadow-indigo-100 border border-slate-200 overflow-hidden">
+        
+        {/* Left Side Branding */}
+        <div className="hidden md:flex md:col-span-2 bg-indigo-600 p-10 flex-col justify-between text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-black leading-tight mb-4">Start your research journey.</h2>
+            <p className="text-indigo-100 text-sm leading-relaxed">Join the world's most advanced learning system powered by NCKH.</p>
+          </div>
+          <div className="relative z-10 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                <Shield className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest">Secure Access</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                <Heart className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest">Personalized</span>
+            </div>
+          </div>
+          <div className="absolute top-[-10%] right-[-20%] w-64 h-64 bg-indigo-400 rounded-full blur-3xl opacity-20"></div>
+        </div>
+
+        {/* Right Side Form */}
+        <div className="md:col-span-3 p-8 sm:p-12 flex flex-col justify-center">
           <Logo />
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-black text-slate-900">Welcome Back</h2>
-            <p className="text-slate-400 text-sm mt-1">Authenticate to access your system workspace</p>
+            <h2 className="text-2xl font-black text-slate-900">Create Account</h2>
+            <p className="text-slate-400 text-sm mt-1">Select your role to get started</p>
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleSignup} className="space-y-6">
             {/* Role Toggle */}
             <div className="flex bg-slate-100 p-1 rounded-2xl">
               <button
@@ -66,6 +92,21 @@ const Login = () => {
             </div>
 
             <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input 
+                    type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:bg-white focus:border-indigo-500 outline-none transition-all text-sm font-medium"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Email Address</label>
                 <div className="relative">
@@ -104,29 +145,23 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-1">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500" />
-                <span className="text-xs text-slate-500 group-hover:text-slate-700 font-medium">Keep me active</span>
-              </label>
-              <button type="button" className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:underline">Reset Logic</button>
+            <div className="flex items-start gap-3 px-1">
+              <input type="checkbox" className="mt-1 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500" required />
+              <span className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                I agree to the <span className="text-indigo-600 font-bold hover:underline cursor-pointer">Terms of Service</span> and <span className="text-indigo-600 font-bold hover:underline cursor-pointer">Privacy Policy</span>.
+              </span>
             </div>
 
             <button 
               type="submit" 
               className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 group"
             >
-              Sign Into Console <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              Initialize Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
 
-            <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-              <div className="relative flex justify-center text-[10px]"><span className="px-3 bg-white text-slate-300 font-black uppercase tracking-widest">Global Auth</span></div>
-            </div>
-
-            <div className="text-center">
+            <div className="text-center pt-4">
               <p className="text-xs text-slate-500 font-medium">
-                New to the system? <Link to="/signup" className="font-black text-indigo-600 hover:underline">Sign Up</Link>
+                Already have a system profile? <Link to="/login" className="font-black text-indigo-600 hover:underline">Sign In</Link>
               </p>
             </div>
           </form>
@@ -136,4 +171,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

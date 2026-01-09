@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   BrainCircuit, 
   Activity, 
@@ -9,18 +9,36 @@ import {
   Info,
   Loader2,
   TrendingUp,
-  User
+  User,
+  Upload,
+  FileCode,
+  Database,
+  ArrowLeft
 } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { useNavigate } from 'react-router-dom';
 
 const PredictionPage = () => {
   const [isPredicting, setIsPredicting] = useState(false);
   const [prediction, setPrediction] = useState<{ risk: number; message: string; factors: string[] } | null>(null);
+  const [uploadedModel, setUploadedModel] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.name.endsWith('.pth')) {
+      setUploadedModel(file.name);
+    } else {
+      alert("Please upload a valid PyTorch (.pth) model file.");
+    }
+  };
 
   const handlePredict = async () => {
+    if (!uploadedModel) {
+      alert("Please upload a .pth model first.");
+      return;
+    }
     setIsPredicting(true);
-    // Simulating API call to backend (where .h5 model would be)
-    // For visual demo, we simulate a delay then generate a report using Gemini
     setTimeout(async () => {
       const result = {
         risk: 0.15,
@@ -37,119 +55,168 @@ const PredictionPage = () => {
     }, 2000);
   };
 
+  const mockLogData = [
+    { id: '9942', session: 'S-102', module: 'MOD-01', time: '45m', watched: '92%', clicks: 124, notes: 3, label: 'Success' },
+    { id: '9945', session: 'S-105', module: 'MOD-01', time: '12m', watched: '15%', clicks: 22, notes: 0, label: 'At Risk' },
+    { id: '9982', session: 'S-108', module: 'MOD-02', time: '68m', watched: '100%', clicks: 210, notes: 8, label: 'Success' },
+  ];
+
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
+    <div className="max-w-6xl mx-auto px-4 py-12">
+      <button 
+        onClick={() => navigate('/admin')}
+        className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold mb-8 group transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+      </button>
+
       <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
-          <h1 className="text-4xl font-black mb-4 flex items-center gap-3">
-            <BrainCircuit className="w-10 h-10 text-blue-600" />
-            AI Performance Predictor
+          <h1 className="text-4xl font-black mb-4 flex items-center gap-3 text-slate-900">
+            <BrainCircuit className="w-10 h-10 text-indigo-600" />
+            Predictive Analytics Engine
           </h1>
           <p className="text-slate-500 text-lg max-w-xl">
-            Leverage our TensorFlow model to analyze student engagement logs and predict success probability.
+            Deploy custom PyTorch models to analyze student behavior logs and identify learning risks in real-time.
           </p>
         </div>
-        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-700 font-medium">
-            This module integrates with the <code className="bg-blue-100 px-1 rounded">student_behavior_v2.h5</code> model on the backend.
+        <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl max-w-xs shadow-sm">
+          <h4 className="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-2">
+            <Database className="w-4 h-4" /> Required Log Schema
+          </h4>
+          <p className="text-[11px] text-indigo-700 leading-relaxed font-mono">
+            student_id, session_id, timestamp, module_id, time_spent_minutes, page_visited, video_watched_percent, clicks_event, notes_forums, next_module_prediction, success_label
           </p>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Input Form Simulation */}
-        <div className="md:col-span-1 space-y-6">
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Model Upload & Control */}
+        <div className="lg:col-span-1 space-y-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <User className="w-5 h-5" /> Select Student
+              <Upload className="w-5 h-5 text-blue-600" /> Model Deployment
             </h3>
-            <select className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500">
-              <option>John Student (ID: 9942)</option>
-              <option>Sarah Parker (ID: 9945)</option>
-              <option>Mike Ross (ID: 9982)</option>
-            </select>
             
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-slate-500 mb-2">Engagement Snapshot</div>
-              <div className="flex justify-between text-sm p-2 bg-slate-50 rounded-lg">
-                <span>Time Spent</span>
-                <span className="font-bold">420 min</span>
-              </div>
-              <div className="flex justify-between text-sm p-2 bg-slate-50 rounded-lg">
-                <span>Video %</span>
-                <span className="font-bold">88%</span>
-              </div>
-              <div className="flex justify-between text-sm p-2 bg-slate-50 rounded-lg">
-                <span>Notes Taken</span>
-                <span className="font-bold">12</span>
-              </div>
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${uploadedModel ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200 hover:border-blue-300'}`}
+            >
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                className="hidden" 
+                accept=".pth"
+              />
+              {uploadedModel ? (
+                <div className="animate-in zoom-in-95">
+                  <FileCode className="w-12 h-12 text-green-600 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-green-800">{uploadedModel}</p>
+                  <p className="text-[10px] text-green-600 uppercase mt-1">Ready for Inference</p>
+                </div>
+              ) : (
+                <>
+                  <FileCode className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-slate-600">Upload PyTorch (.pth) model</p>
+                  <p className="text-xs text-slate-400 mt-1">Drag & drop or click to browse</p>
+                </>
+              )}
             </div>
 
-            <button 
-              onClick={handlePredict}
-              disabled={isPredicting}
-              className="w-full mt-6 py-4 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 disabled:opacity-50 transition-all shadow-lg shadow-blue-100"
-            >
-              {isPredicting ? <Loader2 className="w-5 h-5 animate-spin" /> : <TrendingUp className="w-5 h-5" />}
-              Generate Prediction
-            </button>
+            <div className="mt-8 space-y-4">
+              <div className="text-sm font-bold text-slate-700">Select Target Student</div>
+              <select className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <option>John Student (ID: 9942)</option>
+                <option>Sarah Parker (ID: 9945)</option>
+                <option>Mike Ross (ID: 9982)</option>
+              </select>
+              
+              <button 
+                onClick={handlePredict}
+                disabled={isPredicting || !uploadedModel}
+                className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100"
+              >
+                {isPredicting ? <Loader2 className="w-5 h-5 animate-spin" /> : <TrendingUp className="w-5 h-5" />}
+                Run Inference
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Prediction Results */}
-        <div className="md:col-span-2">
+        {/* Inference Results & Log Preview */}
+        <div className="lg:col-span-2 space-y-8">
           {prediction ? (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-              <div className={`p-8 rounded-3xl border-2 ${prediction.risk < 0.3 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className={`p-8 rounded-3xl border-2 mb-8 ${prediction.risk < 0.3 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold mb-1">Success Probability</h2>
-                    <p className="text-slate-600 text-sm">Based on current neural network analysis</p>
+                    <h2 className="text-2xl font-bold mb-1">Model Inference Result</h2>
+                    <p className="text-slate-600 text-sm">Deployment: {uploadedModel}</p>
                   </div>
                   <div className={`text-4xl font-black ${prediction.risk < 0.3 ? 'text-green-600' : 'text-red-600'}`}>
-                    {((1 - prediction.risk) * 100).toFixed(0)}%
+                    {((1 - prediction.risk) * 100).toFixed(0)}% <span className="text-lg font-normal">Score</span>
                   </div>
                 </div>
-
-                <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur rounded-2xl mb-8">
+                <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur rounded-2xl mb-8 border border-white/50">
                   {prediction.risk < 0.3 ? <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" /> : <AlertCircle className="w-6 h-6 text-red-600 shrink-0" />}
                   <p className="font-medium text-slate-800 leading-relaxed">{prediction.message}</p>
                 </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-bold text-sm uppercase tracking-wider text-slate-400">Key Decision Factors</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {prediction.factors.map(f => (
-                      <div key={f} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 text-sm font-medium">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        {f}
-                      </div>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {prediction.factors.map(f => (
+                    <div key={f} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 text-sm font-medium">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                      {f}
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold mb-4">Instructor Recommendation</h3>
-                  <p className="opacity-80 text-sm mb-6 leading-relaxed">
-                    Student is exhibiting optimal learning patterns. Continue current curriculum. 
-                    Recommended next module: <span className="text-blue-400 font-bold underline">Advanced Redux Persistence</span>
-                  </p>
-                  <button className="flex items-center gap-2 text-blue-400 font-bold hover:gap-3 transition-all">
-                    Send Encouragement Email <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-                <Activity className="absolute bottom-[-20%] right-[-5%] w-64 h-64 opacity-5 text-white" />
               </div>
             </div>
           ) : (
-            <div className="h-full min-h-[400px] border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-slate-400">
-              <BrainCircuit className="w-16 h-16 mb-4 opacity-20" />
-              <p className="font-medium">Select a student and run prediction to see results</p>
+            <div className="h-48 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-slate-400">
+              <BrainCircuit className="w-12 h-12 mb-4 opacity-20" />
+              <p className="font-medium">Upload a model and run inference to see performance reports</p>
             </div>
           )}
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                <Database className="w-4 h-4" /> Live Tracking Log Preview
+              </h3>
+              <button className="text-xs font-bold text-indigo-600 hover:underline">Export CSV</button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-6 py-4 font-bold text-slate-400 uppercase">Student ID</th>
+                    <th className="px-6 py-4 font-bold text-slate-400 uppercase">Module</th>
+                    <th className="px-6 py-4 font-bold text-slate-400 uppercase">Time Spent</th>
+                    <th className="px-6 py-4 font-bold text-slate-400 uppercase">Video %</th>
+                    <th className="px-6 py-4 font-bold text-slate-400 uppercase">Clicks</th>
+                    <th className="px-6 py-4 font-bold text-slate-400 uppercase">Label</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-mono">
+                  {mockLogData.map((log, i) => (
+                    <tr key={i} className="hover:bg-slate-50">
+                      <td className="px-6 py-4 font-bold text-slate-900">{log.id}</td>
+                      <td className="px-6 py-4 text-slate-600">{log.module}</td>
+                      <td className="px-6 py-4 text-slate-600">{log.time}</td>
+                      <td className="px-6 py-4 text-slate-600">{log.watched}</td>
+                      <td className="px-6 py-4 text-slate-600">{log.clicks}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase ${log.label === 'Success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {log.label}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

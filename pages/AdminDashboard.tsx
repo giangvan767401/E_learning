@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Users, 
   DollarSign, 
@@ -9,10 +9,14 @@ import {
   MoreVertical, 
   MessageSquare, 
   Activity,
-  FileText
+  FileText,
+  Star,
+  Edit
 } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-10">
@@ -20,7 +24,10 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-black">Instructor Dashboard</h1>
           <p className="text-slate-500">Manage your students and course performance</p>
         </div>
-        <button className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+        <button 
+          onClick={() => navigate('/admin/course/new')}
+          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+        >
           <Plus className="w-5 h-5" /> Create Course
         </button>
       </div>
@@ -82,13 +89,13 @@ const AdminDashboard = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {[
-                  { title: 'Next.js Mastery', sales: 412, rating: 4.9, status: 'Published' },
-                  { title: 'Advanced Tailwind', sales: 284, rating: 4.8, status: 'Published' },
-                  { title: 'AI Foundations', sales: 156, rating: 4.7, status: 'Draft' },
+                  { id: '1', title: 'Next.js Mastery', sales: 412, rating: 4.9, status: 'Published' },
+                  { id: '2', title: 'Advanced Tailwind', sales: 284, rating: 4.8, status: 'Published' },
+                  { id: '3', title: 'AI Foundations', sales: 156, rating: 4.7, status: 'Draft' },
                 ].map((course, i) => (
-                  <tr key={i} className="hover:bg-slate-50 transition-all cursor-pointer">
+                  <tr key={i} className="hover:bg-slate-50 transition-all cursor-pointer group">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-slate-900">{course.title}</div>
+                      <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{course.title}</div>
                       <div className="text-xs text-slate-500">Updated 2 days ago</div>
                     </td>
                     <td className="px-6 py-4 font-medium text-slate-700">{course.sales}</td>
@@ -103,7 +110,18 @@ const AdminDashboard = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <MoreVertical className="w-5 h-5 text-slate-400 ml-auto" />
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/course/edit/${course.id}`);
+                          }}
+                          className="p-2 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-blue-600 transition-all"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <MoreVertical className="w-5 h-5 text-slate-400" />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -121,7 +139,7 @@ const AdminDashboard = () => {
                 Our model predicts that 14 students in your courses are currently at risk of falling behind.
               </p>
               <Link to="/admin/predict" className="w-full py-3 bg-white text-slate-900 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-100 transition-all text-sm">
-                View Risk Report <Eye className="w-4 h-4" />
+                Predictive Analytics <Activity className="w-4 h-4" />
               </Link>
             </div>
             <Activity className="absolute bottom-[-10%] right-[-10%] w-32 h-32 opacity-10" />
@@ -146,12 +164,5 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
-// Internal icon for consistency
-const Star = ({ className }: { className?: string }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-  </svg>
-);
 
 export default AdminDashboard;
