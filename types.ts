@@ -1,7 +1,7 @@
 
 export enum UserRole {
   STUDENT = 'STUDENT',
-  ADMIN = 'ADMIN'
+  ADMIN = 'INSTRUCTOR'
 }
 
 export interface User {
@@ -23,6 +23,7 @@ export interface Course {
   price: number;
   description: string;
   lessons: Lesson[];
+  activeModelId?: string;
 }
 
 export interface Lesson {
@@ -31,6 +32,7 @@ export interface Lesson {
   videoUrl: string;
   duration: string;
   content: string;
+  order: number;
 }
 
 export interface MLPredictionParams {
@@ -54,4 +56,6 @@ export interface MLPredictionParams {
   learning_trend: 'improving' | 'stable' | 'declining';
   attention_score: number;
   feedback_type: string;
+  next_module_prediction?: string;
+  success_label?: boolean;
 }
