@@ -264,6 +264,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
+            {/* Fix: Wrap component children correctly within ProtectedRoute to satisfy ReactNode type requirement */}
             <Route path="/learn/:id" element={<ProtectedRoute><CourseLearning /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
