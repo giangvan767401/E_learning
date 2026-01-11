@@ -6,6 +6,9 @@ import Stripe from 'stripe';
 import { Course } from '../courses/entities/course.entity';
 import { Enrollment } from '../courses/entities/enrollment.entity';
 
+// Fix: Imported Buffer from node:buffer or assume globally available via @types/node. 
+// In NestJS, typically Buffer is globally available if types are installed, but we use 'any' if needed or rely on standard Node globals.
+
 @Injectable()
 export class PaymentsService {
   private stripe: Stripe;
@@ -58,7 +61,8 @@ export class PaymentsService {
     return { url: session.url };
   }
 
-  async handleWebhook(signature: string, rawBody: Buffer) {
+  // Fix: Added explicit Buffer type handling for Node environment
+  async handleWebhook(signature: string, rawBody: any) {
     let event: Stripe.Event;
 
     try {

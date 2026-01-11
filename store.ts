@@ -40,7 +40,7 @@ export const useCartStore = create<CartState>((set) => ({
   clearCart: () => set({ items: [] }),
 }));
 
-interface Notification {
+export interface Notification {
   id: string;
   title: string;
   message: string;
@@ -51,17 +51,18 @@ interface Notification {
 
 interface NotificationState {
   notifications: Notification[];
+  setNotifications: (ns: Notification[]) => void;
   addNotification: (n: Notification) => void;
   markAsRead: (id: string) => void;
   clearAll: () => void;
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [
-    { id: '1', title: 'New Course Available', message: 'Mastering Rust is now live!', type: 'info', time: '2h ago', read: false },
-    { id: '2', title: 'Performance Alert', message: 'AI suggests reviewing Module 4 in React Patterns.', type: 'alert', time: '5h ago', read: false }
-  ],
-  addNotification: (n) => set((state) => ({ notifications: [n, ...state.notifications] })),
+  notifications: [],
+  setNotifications: (ns) => set({ notifications: ns }),
+  addNotification: (n) => set((state) => ({ 
+    notifications: [n, ...state.notifications] 
+  })),
   markAsRead: (id) => set((state) => ({
     notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
   })),

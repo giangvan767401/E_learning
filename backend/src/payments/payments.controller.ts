@@ -23,7 +23,8 @@ export class PaymentsController {
   @Post('webhook')
   async webhook(
     @Headers('stripe-signature') sig: string,
-    @RawBody() body: Buffer,
+    // Fix: Using any for raw body to avoid Buffer reference issues if @types/node is missing
+    @RawBody() body: any,
   ) {
     if (!sig) throw new BadRequestException('Missing stripe-signature header');
     return this.paymentsService.handleWebhook(sig, body);

@@ -11,6 +11,7 @@ import { LogsModule } from './logs/logs.module';
 import { ModelsModule } from './models/models.module';
 import { PredictionsModule } from './predictions/predictions.module';
 import { PaymentsModule } from './payments/payments.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { User } from './auth/entities/user.entity';
 import { Course } from './courses/entities/course.entity';
 import { Lesson } from './courses/entities/lesson.entity';
@@ -18,6 +19,7 @@ import { Enrollment } from './courses/entities/enrollment.entity';
 import { LearningLog } from './logs/entities/learning-log.entity';
 import { UploadedModel } from './models/entities/uploaded-model.entity';
 import { PredictionResult } from './predictions/entities/prediction-result.entity';
+import { Notification } from './notifications/entities/notification.entity';
 
 @Module({
   imports: [
@@ -34,7 +36,8 @@ import { PredictionResult } from './predictions/entities/prediction-result.entit
         Enrollment, 
         LearningLog, 
         UploadedModel, 
-        PredictionResult
+        PredictionResult,
+        Notification
       ],
       synchronize: true,
       logging: false,
@@ -46,6 +49,7 @@ import { PredictionResult } from './predictions/entities/prediction-result.entit
     ModelsModule,
     PredictionsModule,
     PaymentsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
